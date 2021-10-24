@@ -1,0 +1,127 @@
+---
+title: "2021 week 4 data"
+author: "Megan Norman"
+date: "10/18/2021"
+output: github_document
+---
+# 2021 Bacterial Abundance Data Analysis by Megan Norman
+
+## Load Packages
+
+```{r load packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+```
+
+## Import Data
+
+```{r}
+excel_sheets("Input_Data/week4/144L_2021_BactAbund.xlsx")
+
+metadata <- read_excel("Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
+glimpse(metadata)
+#unique(metadata$Bottle)
+#unique(metadata$Treatment)
+
+data <- read_excel("Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Data")
+glimpse(data)
+
+#attach data to metadata
+
+joined <- left_join(metadata, data)
+glimpse(joined)
+```
+## Prepare Data
+We are converting the Date and Time values from characters to dates, adding columns with the time elapsed for each treatment, and converting to cells/L. Then subsetting the data for variables of interest and dropping NA values. To do this we will use the pipe operator "%>%".
+```{r}
+cells <- joined %>%
+  mutate(Datetime = ymd_hm(Datetime),
+  all_cells_L = as.numeric(all_cells_uL)*1000000,
+  LNA_cells_L = as.numeric(LNA_cells_uL)*1000000,
+  HNA_cells_L = as.numeric(HNA_cells_uL)*1000000) %>%
+  group_by(Treatment, Bottle) %>%
+  mutate(interv = interval(first(Datetime), Datetime),
+         s = as.numeric(interv),
+         hours = s/3600,
+         days = hours/24) %>%
+  ungroup() %>%
+  select(Experiment:DNA_Sample, all_cells_L, LNA_cells_L, HNA_cells_L, hours, days) %>%
+drop_na(all_cells_L)
+glimpse(cells)
+```
+## Plot Growth Curves
+Plotting a growth curve for each bottle with cell abundance and days data.
+
+```{r warning=FALSE}
+#assign hex colors to our different treatments.
+custom.colors <- c("Control" = "#377EB8", "Kelp Exudate" = "#4DAF4A", "Kelp Exudate_Nitrate_Phosphate" = "#E41A1C", "Glucose_Nitrate_Phosphate" = "#FF7F00")
+
+#assign levels to control order they appear in the legend
+levels <- c("Control", "Kelp Exudate", "Kelp Exudate_Nitrate_Phosphate", "Glucose_Nitrate_Phosphate")
+
+#now we will use ggplot to visualize our data.
+
+cells %>%
+  mutate(dna = ifelse(DNA_Sample == T, "*", NA)) %>%
+  ggplot(aes(x=days, y=all_cells_L, group = interaction(Treatment, Bottle))) +
+  geom_line(aes(color = factor(Treatment, levels = levels)), size =1) + 
+  geom_point(aes(fill = factor(Treatment, levels = levels)), size = 3, color = "black", shape = 21) +
+  geom_text(aes(label = dna), size = 12, color = "#E41A1C") + 
+  labs(x = "Days" , y = expression(paste("Cells, L"^-1)), fill = "") +
+  guides(color = "none") +
+  scale_color_manual(values = custom.colors) +
+  scale_fill_manual(values = custom.colors)
+  #facet_grid(rows = "Treatment")
+```
+
+## Next Steps
+
+We can calculate:
+- the total change in cells from initial conditions to the end of the experiment
+- specific growth rate as the slope of ln(abundance) vs time during exponential growth phase
+- doubling time as ln(2) divided by the specific growth rate
+- mean of each of these parameters across each treatment
+
+First, determine *where* exponential growth is occurring in each bottle, if it does occur. To do this, plot ln(abundance) vs time.
+
+## Identify exponential growth phase in our remin. experiments.
+
+```{r}
+ln_cells <- cells %>%
+  group_by(Treatment, Bottle) %>%
+  mutate(ln_cells = log(all_cells_L),
+         diff_ln_cells = ln_cells - lag(ln_cells, default = first(ln_cells)))
+```
+
+Now we plot our newly calculated data.
+
+```{r warning=FALSE}
+ln_cells %>%
+ mutate(dna = ifelse(DNA_Sample == T, "*", NA)) %>%
+  ggplot(aes(x=days, y=diff_ln_cells, group = interaction(Treatment, Bottle))) +
+  geom_line(aes(color = factor(Treatment, levels = levels)), size =1) + 
+  geom_point(aes(fill = factor(Treatment, levels = levels)), size = 3, color = "black", shape = 21) +
+  geom_text(aes(label = dna), size = 12, color = "#E41A1C") + 
+  labs(x = "Days" , y = expression(paste("delta_ln cells, L"^-1)), fill = "") +
+  guides(color = "none") +
+  scale_color_manual(values = custom.colors) +
+  scale_fill_manual(values = custom.colors)
+```
+
+Now, plotting ln_cells.
+
+```{r warning=FALSE}
+ln_cells %>%
+ mutate(dna = ifelse(DNA_Sample == T, "*", NA)) %>%
+  ggplot(aes(x=days, y=diff_ln_cells, group = interaction(Treatment, Bottle))) +
+  geom_line(aes(color = factor(Treatment, levels = levels)), size =1) + 
+  geom_point(aes(fill = factor(Treatment, levels = levels)), size = 3, color = "black", shape = 21) +
+  geom_text(aes(label = dna), size = 12, color = "#E41A1C") + 
+  labs(x = "Days" , y = expression(paste("ln cells, L"^-1)), fill = "") +
+  guides(color = "none") +
+  scale_color_manual(values = custom.colors) +
+  scale_fill_manual(values = custom.colors) + 
+  facet_wrap("Bottle", ncol =2)
+```
+
