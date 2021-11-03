@@ -1,6 +1,6 @@
 ---
 title: "2021_dapi_abundance submission"
-author: "Your Name"
+author: "Megan Norman"
 date: "10/27/2021"
 output: github_document
 ---
@@ -18,9 +18,9 @@ library(lubridate)
 # Import Data 
 
 ```{r}
-excel_sheets("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx")
+excel_sheets("Input_Data/week4/144L_2021_BactAbund.xlsx")
 
-metadata <- read_excel("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
+metadata <- read_excel("Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
 
 glimpse(metadata)
 

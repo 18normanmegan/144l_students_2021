@@ -25,5 +25,7 @@ Using the settings button in a chunk, we can toggle on/off warnings or messages.
 
 ```{r}
 excel_sheets("Input_Data/week3/144L_2018_BactAbund.xlsx")
+
+metadata <- read_excel("Input_Data/week3/144L_2018_BactAbund.xlsx", sheet = "Metadata")
 ```
 
