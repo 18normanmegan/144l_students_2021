@@ -1,6 +1,6 @@
 ---
 title: "2021 Bacterial Abundance Data (DAPI) & TOC Data Analysis"
-author: "Your Name"
+author: "Megan Norman"
 date: "11/03/2021"
 output: github_document
 ---
@@ -20,20 +20,20 @@ library(lubridate)
 ```{r}
 #make sure to update the filepaths for your own locally-stored repository! 
 
-excel_sheets("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx")
+excel_sheets("Input_Data/week4/144L_2021_BactAbund.xlsx")
 
 #Mac: to make an arrow, use Option + - 
 
-metadata <- read_excel("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
+metadata <- read_excel("Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
 
 glimpse(metadata)
 #unique(metadata$Bottle)
 #unique(metadata$Treatment)
 
-dapi_data <- read_excel("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "DAPI_Data")
+dapi_data <- read_excel("Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "DAPI_Data")
 glimpse(dapi_data)
 
-toc_data <- read_excel("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "TOC_Data")
+toc_data <- read_excel("Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "TOC_Data")
 glimpse(toc_data)
 
 dapi_metadata <- metadata %>%
@@ -97,7 +97,7 @@ glimpse(cells)
 ```
 Q1: What differences between the treatments do you observe? Does this make sense in the context of the oxygen drawdown data (pictured below)?
 
-A1: 
+A1: The differences between the treatments include the highest cell abundance level in the GNP treatment and the Kelp+NP treatment, followed by the Kelp exudate treatment, and the lowest cell abundance in the control treatment.
 
 Oxygen Drawdown: 
 ![](EEMB144_remin_autoBOD.png)
@@ -124,7 +124,7 @@ glimpse(cells)
 ```
 Q2: What differences do you notice between the cell abundance data and the cell biovolume data across each treatment? 
 
-A2: 
+A2: The cell abundance data has a different trend from the biovolume data. While the cell abundance data has a trend that goes mostly upward, the biovolume data increases in the middle of the experiment and then decreases again. Across treatments, the GNP and Kelp+NP treatments were approximately the highest in biovolume, which is the same as the cell abundance data. Again, the kelp exudate was below these, and the control was approximately the lowest biovolume treatment, which is similar to the cell abundance data.
 
 # Next Steps 
 
@@ -180,7 +180,7 @@ A: Between 0-2 days for all bottles. (T0 - T4)
 
 Q3: What are the limitations of using the DAPI data (only 3 timepoints) instead of the FCM data? Hint: Think about this question in terms of bacterial growth curves, and which phase of growth we need in order to calculate specific growth rates. 
 
-A3:
+A3: Specific growth rates must be calculated using the data points in the exponential phase of growth. One limitation of using the DAPI data is that there are only three time points for each treatment (0, 4, and 8) and exponential growth only occurs between the time points 0 and 4. So, we will only get to see how they changed between two points in time.
 
 ## Calculate growth rates, doubling times, and ∆cell abundances using cell abundance data (cells/L)
 
@@ -240,7 +240,7 @@ glimpse(bactcarbon)
 
 #update this filepath to match your own repository 
 #save your data to a .csv 
-write.csv(bactcarbon, "~/Documents/144l_students_2021/Output_Data/week6/211101_dapi_data_calculations.csv")
+write.csv(bactcarbon, "Output_Data/week6/211101_dapi_data_calculations.csv")
 
 #normally we would do this for the individual bottles and then calculate averages, but can't do that here since we have data from combined bottles 
 
@@ -260,7 +260,7 @@ trt_ba <- bactcarbon %>%
 
 trt_ba
 
-saveRDS(trt_ba, "~/Documents/144l_students_2021/Output_Data/week6/144L_trt_ba_plot.rds")
+saveRDS(trt_ba, "Output_Data/week6/144L_trt_ba_plot.rds")
 ```
 
 ```{r fig.height=4, fig.width=6}
@@ -275,12 +275,12 @@ trt_ba_biovol <- bactcarbon %>%
 
 trt_ba_biovol
 
-saveRDS(trt_ba_biovol, "~/Documents/144l_students_2021/Output_Data/week6/144L_trt_ba_biovol_plot.rds")
+saveRDS(trt_ba_biovol, "Output_Data/week6/144L_trt_ba_biovol_plot.rds")
 ```
 
 Q4: How do the bacterial carbon values change when we account for changes in cell biovolume as the experiment progresses? 
 
-A4: 
+A4: Biovolume-derived bacterial carbon results in an increase in the values for the GNP treatment and Kelp+NP, and a slight increase in the values for the Kelp exudate and the control. In the graph of biovolume-derived bacterial carbon, this is evident in the separation between the top two lines and the bottom two. This separation is not as evident in the plain bacterial carbon graph.
 
 ## Barplots
 
@@ -331,7 +331,7 @@ delta_cells
 
 ```{r}
 #uncomment the next line below if you need to install the package "patchwork" (remove the #)
-# install.packages("patchwork")
+install.packages("patchwork")
 library(patchwork)
 ```
 
@@ -343,12 +343,12 @@ delta_cells + mew + doubling + plot_annotation(tag_levels = "a") +plot_layout(nc
 
 Q5: Do the patterns you see in the ∆Cells, specific growth rate (u), and doubling time line up with our previous observations of cell abundance? How about with the oxygen drawdown data?
 
-A5: 
+A5: The patterns in these data (∆Cells, specific growth rate (u), and doubling time) all line up with the previous observations of cell abundance which suggested that the GNP treatment had the most successful growth, followed by the Kelp+NP, Kelp exudate, and control. They also followed the oxygen drawdown data, which suggested the treatments followed this pattern in terms of decreasing cell growth and abundance.
 
 # Save Data 
 
 ```{r}
-saveRDS(bactcarbon, "~/Documents/144l_students_2021/Output_Data/week6/144L_Exp_Processed_BactAbund.rds")
+saveRDS(bactcarbon, "Output_Data/week6/144L_Exp_Processed_BactAbund.rds")
 ```
 
 # Incorporate TOC data
@@ -377,10 +377,10 @@ Q6: a) What was our target concentration of carbon to add to each treatment?
     c) What does this imply about our ability to assess the effect of the **type** of DOC added?
     d) What happens to TOC over time in the incubations and does this align with our other data?
 
-A6: a) 
-    b)
-    c) 
-    d) 
+A6: a) Our target concentration of carbon was 100 µmol C L"^-1.
+    b) No, the Control, Kelp exudate, and Kelp+NP treatments were all much lower than the GNP treatment.
+    c) Our ability to assess the effect of the type of DOC is not as strong, since the factor being assessed could very well be the amount of the DOC rather than the type.
+    d) Our TOC over time decreases, which aligns with the data about our cell abundances increasing, since microbes will decrease more TOC by converting it to inorganic carbon as their numbers grow.
 
 ## Calculate DOC, ∆DOC, Bioavailable DOC Fraction, and Bacterial Growth Efficiency (BGE)
 ```{r}
@@ -482,4 +482,4 @@ deldoc / deldoc_bv / bioav / bioav_bv / bge / bge_bv + plot_annotation(tag_level
 ```
 Q7: How does incorporating biovolume change (or not change) your interpretation of the ∆DOC, Bioavaliable DOC, and BGE values? Provide 1-2 sentences for each comparison (a vs. b,c vs. d & e vs. f)
 
-A7: 
+A7: Incorporating biovolume for DOC (a+b) increases the DOC measurements for most of the  treatments. Incorporating biovolume for DOC fraction (c+d) causes an increase in the measurements for the GNP and Kelp+NP treatments. Incorporating biovolume for bacterial growth efficiency (e+f) causes the measurement for the control treatment to decrease while the rest of the measurements for the other treatments increase. 
